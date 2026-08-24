@@ -123,12 +123,6 @@ class FilelistIndexerDefinition(BaseIndexerDefinition):
         if response.history:
             original_url = str(response.history[0].url)
 
-        # A GET /login.php szándékos kérés a CSRF form lekéréséhez —
-        # ezt sosem jelezzük hibának (a form tartalmaz name="username" mezőt,
-        # ezért ezt ELŐBB kell ellenőrizni mint a HTML tartalmat)
-        if response.request.method == "GET" and "/login.php" in original_url:
-            return None
-
         html = response.text
         normalized = html.lower()
 
@@ -147,12 +141,12 @@ class FilelistIndexerDefinition(BaseIndexerDefinition):
         # Egyéb kérés irányult login-ra → lejárt session
         return AuthSessionError()
 
-    async def _login(self, credential: IndexerDefinitionLogin) -> httpx.Response:
+    async def _login(self, payload: IndexerDefinitionLogin) -> httpx.Response:
         # 1. lépés: GET /login.php → PHPSESSID cookie + validator token
         res = await self._client.get("/login.php", params={"returnto": "/"})
         form_data = self._build_login_form(res.text)
-        form_data["username"] = credential.username
-        form_data["password"] = credential.password
+        form_data["username"] = payload.username
+        form_data["password"] = payload.password
         form_data["unlock"] = "1"
 
         # 2. lépés: POST /takelogin.php — url-encoded
