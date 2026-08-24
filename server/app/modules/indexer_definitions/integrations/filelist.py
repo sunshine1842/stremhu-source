@@ -13,7 +13,7 @@ from app.modules.indexer_definitions.schemas.internal import (
     AuthError,
     AuthSessionError,
     IndexerDefinitionFindTorrentsResult,
-    IndexerDefinitionLogin,
+    IndexerDefinitionLoginPayload,
     IndexerDefinitionTorrent,
 )
 from app.modules.media_attributes.constants import MediaAttributeKey
@@ -141,7 +141,7 @@ class FilelistIndexerDefinition(BaseIndexerDefinition):
         # Egyéb kérés irányult login-ra → lejárt session
         return AuthSessionError()
 
-    async def _login(self, payload: IndexerDefinitionLogin) -> httpx.Response:
+    async def _login(self, payload: IndexerDefinitionLoginPayload) -> httpx.Response:
         # 1. lépés: GET /login.php → PHPSESSID cookie + validator token
         res = await self._client.get("/login.php", params={"returnto": "/"})
         form_data = self._build_login_form(res.text)
