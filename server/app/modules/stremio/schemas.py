@@ -137,6 +137,7 @@ class BehaviorHints(BaseModel):
     not_web_ready: bool = True
     binge_group: str | None = None
     filename: str | None = None
+    video_size: int | None = None
 
 
 class StremioStream(BaseModel):
@@ -167,6 +168,7 @@ class StremioStream(BaseModel):
                         if isinstance(attr, MediaAttributeModel)
                     ],
                 ),
+                video_size=torrent_stream.file_size,
             ),
         )
 
@@ -236,12 +238,9 @@ class StremioStream(BaseModel):
         if torrent_stream.is_persisted_torrent:
             readable_is_persisted = "⭐"
 
-        is_3d = any(attr.id == "3d" for attr in media_attributes)
-        readable_3d = "🥽 3D" if is_3d else None
-
         name = " | ".join(
             compact(
-                [readable_3d, readable_is_persisted, readable_resolutions, readable_video_qualities]
+                [readable_is_persisted, readable_resolutions, readable_video_qualities]
             )
         )
         description = "\n".join(
@@ -261,6 +260,7 @@ class StremioStream(BaseModel):
             behavior_hints=BehaviorHints(
                 filename=behavior_filename,
                 binge_group=binge_group,
+                video_size=torrent_stream.file_size,
             ),
         )
 
