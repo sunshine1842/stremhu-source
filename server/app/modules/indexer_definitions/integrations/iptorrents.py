@@ -2,6 +2,8 @@ import re
 from urllib.parse import urljoin
 
 import httpx
+from selectolax.parser import HTMLParser
+
 from app.modules.indexer_definitions.base_indexer_definition import (
     BaseIndexerDefinition,
 )
@@ -14,7 +16,6 @@ from app.modules.indexer_definitions.schemas.internal import (
     IndexerDefinitionTorrent,
 )
 from app.modules.media_attributes.constants import MediaAttributeKey
-from selectolax.parser import HTMLParser
 
 # ─── Kategória → attribute_id mapping ────────────────────────────────────────
 _CATEGORY_MAP: dict[str, list[str]] = {
@@ -85,15 +86,57 @@ _CATEGORY_MAP: dict[str, list[str]] = {
 }
 
 _TV_CATEGORY_IDS = [
-    "73", "26", "55", "78", "23", "24", "25", "66", "82",
-    "65", "83", "79", "22", "5", "99", "4",
+    "73",
+    "26",
+    "55",
+    "78",
+    "23",
+    "24",
+    "25",
+    "66",
+    "82",
+    "65",
+    "83",
+    "79",
+    "22",
+    "5",
+    "99",
+    "4",
 ]
 
 _ALL_CATEGORY_IDS = [
-    "72", "87", "77", "101", "89", "90", "96", "6",
-    "48", "54", "62", "38", "68", "20", "100", "7",
-    "73", "26", "55", "78", "23", "24", "25", "66", "82",
-    "65", "83", "79", "22", "5", "99", "4",
+    "72",
+    "87",
+    "77",
+    "101",
+    "89",
+    "90",
+    "96",
+    "6",
+    "48",
+    "54",
+    "62",
+    "38",
+    "68",
+    "20",
+    "100",
+    "7",
+    "73",
+    "26",
+    "55",
+    "78",
+    "23",
+    "24",
+    "25",
+    "66",
+    "82",
+    "65",
+    "83",
+    "79",
+    "22",
+    "5",
+    "99",
+    "4",
 ]
 
 
@@ -130,11 +173,21 @@ def _attribute_ids_from_category_and_name(category: str, name: str) -> list[str]
             base_attrs.append(MediaAttributeKey.R480P)
 
     if MediaAttributeKey.X265 not in base_attrs:
-        if "x265" in name_lower or "hevc" in name_lower or "h265" in name_lower or "h 265" in name_lower:
+        if (
+            "x265" in name_lower
+            or "hevc" in name_lower
+            or "h265" in name_lower
+            or "h 265" in name_lower
+        ):
             base_attrs.append(MediaAttributeKey.X265)
 
     if MediaAttributeKey.X264 not in base_attrs:
-        if "x264" in name_lower or "h264" in name_lower or "h 264" in name_lower or "avc" in name_lower:
+        if (
+            "x264" in name_lower
+            or "h264" in name_lower
+            or "h 264" in name_lower
+            or "avc" in name_lower
+        ):
             base_attrs.append(MediaAttributeKey.X264)
 
     if MediaAttributeKey.WEB_DL not in base_attrs:
@@ -188,7 +241,9 @@ def _parse_torrent_rows(tree, imdb_id: str) -> list:
         if download_path.startswith("http"):
             download_url = download_path
         else:
-            download_url = urljoin("https://iptorrents.com", "/" + download_path.lstrip("/"))
+            download_url = urljoin(
+                "https://iptorrents.com", "/" + download_path.lstrip("/")
+            )
 
         tds = row.css("td")
         if len(tds) < 2:
@@ -349,7 +404,7 @@ class IptorrentsIndexerDefinition(BaseIndexerDefinition):
         rows = tree.css("tr[id^='line']")
         hit_and_run_ids: list[str] = []
         for row in rows:
-            row_id = row.attributes.get("id", "")
+            row_id = row.attributes.get("id") or ""
             torrent_id = row_id.removeprefix("line")
             if torrent_id.isdigit():
                 hit_and_run_ids.append(torrent_id)
