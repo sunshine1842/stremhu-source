@@ -387,8 +387,10 @@ DEFAULT_ATTRIBUTES = [
     MediaAttributeModel(
         id=MediaAttributeKey.THREE_D,
         name="3D",
-        preference_id=None,
+        preference_id=PreferenceKey.EDITION,
         pattern=r"\b(3d|hsbs|hou|half[-_. ]?(?:sbs|ou))\b",
         short_name="3D",
+        is_preferable=False,
+        show_in_details=True,
     ),
 ]
